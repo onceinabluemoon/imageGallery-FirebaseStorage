@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+    <title>İmage GalleryEs</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/4.7.0/firebase.js"></script>
+    <script>
+        var config = {
+            // Your Key
+            apiKey:" ",
+            authDomain: " ",
+            databaseURL: " ",
+            projectId: " ",
+            storageBucket: " ",
+            messagingSenderId: " "
+        };
+        firebase.initializeApp(config);
+
+        var db = firebase.database();
+        var images = db.ref("images");
+
+        var imageUrl = localStorage.getItem("imageUrl");
+
+        images.on('value', function (tumData)
+        {
+            var tableData = "";
+
+            tumData.forEach(function (mesaj)
+            {
+                var url = mesaj.val().url;
+                var yazi = mesaj.val().yazi;
+
+                // tableData = "<tr><th>image</th><th>remove</th></tr>";
+
+                tableData += "<tr>";
+                tableData += "<td><br/><img src=" + url + "/><br/><p>" + yazi + "</p></td>";
+                //tableData += "<td><a href='#' class='sil' rec_val='"+url+"'>Sil</a></td>";
+                //tableData += "<td>SİL</td>";
+                tableData += "</tr>";
+
+            });
+
+            $("#content").html(tableData);
+            
+            
+        });
+                        
+    </script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"  crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+    <style>
+
+        img{width: 500px; margin-left: 12px;}
+        button{padding: 10px; border-radius: 12px; background: violet; color: indigo; padding-left: 20px; padding-right: 20px;}
+        #msg {border: 2px groove violet; border-radius: 12px; padding: 10px;}
+        .container{margin-left: 400px; margin-right: 400px;}
+        p{border-bottom: 1px solid violet;}
+        img{border-radius: 12px;}
+        a{color: indigo; background: violet; text-decoration: none; padding: 5px; padding-left: 20px; padding-right: 20px; border-radius: 12px;}
+        td:last-child{color: darkmagenta; cursor: pointer;
+                          font-weight: bold; text-decoration: none;}
+        #res{width:100%; border: 2px groove violet; border-radius: 12px; box-shadow: 0px 0px 80px pink;}
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <table id="res" border="1">
+        <tbody id="content">
+
+        </tbody>
+    </table>
+    <br />
+    <input type="text" id="msg" placeholder="Açıklama giriniz."/>
+    <br />
+    <button id="send">Görüntüle</button>
+</div>
+
+<script>
+
+        $("#send").click(function ()
+        {
+
+            var mesaj =
+                    {
+                        url: imageUrl,
+                        yazi: $("#msg").val()
+                    };
+            // /images altinda yeni bir key yap
+            var msgId = images.push().key;
+
+            // /images/yeniKey'e ait referansa eriş
+            var ref = images.child(msgId);
+
+            // referansin değerini değiştir
+            ref.set(mesaj);
+
+            setTimeout(function ()
+            {
+                localStorage.clear();
+                console.log("local storage clear!");
+
+            }, 2000);
+
+        }); 
+
+</script>
+
+</body>
+</html>

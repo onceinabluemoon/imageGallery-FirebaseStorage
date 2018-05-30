@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+    <title>İmage Upload and Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/4.7.0/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            // Your Key
+            apiKey: " ",
+            authDomain: " ",
+            databaseURL: " ",
+            projectId: " ",
+            storageBucket: " ",
+            messagingSenderId: " "
+        };
+        firebase.initializeApp(config);
+        var storage = firebase.storage().ref();
+        var folder = storage.child("gallery");
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+    <style>
+        .line{border: 2px groove hotpink;}
+        div, img, input, textarea,h1{border-radius: 25px;}
+        .row > div{    padding-right: 250px; display: inline-block; padding-left: 250px; margin-left: 200px;}
+        .buyukresim, #durum {border: 2px groove violet;}
+        #durum{font-weight: bold;}
+        button{padding: 10px; border-radius: 15px; background: violet; color: indigo;}
+    </style>
+
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row" >
+
+
+        <div class="col-md-6 col-md-offset-3  col-xs-6 line "    style="box-shadow: 0px 0px 80px pink;">
+            <br/>
+            <textarea id="durum" placeholder="Yüklenme Durumu"  style="padding:10px; color: indigo;" ></textarea><br/><br/>
+            <div id='imageC' class="buyukresim" style='width: 400px; height: 400px; '>
+                <img style="width: 100%; height: 100%;" />
+            </div><br/>
+            <input type="file" id="image" name="image" style="padding:10px; background: violet; color: indigo;" /><br/><br/>
+            <button type="button" id="yukle" >Yükle</button>
+            <button type="button" id="gal" >Galeri</button>
+            <button type="button" id="del" >Sil</button>
+            <p></p>
+        </div>
+    </div>
+</div>
+
+<script>
+        var secilenİmage;
+        var gorev;
+        var imageRef;
+        //var url;
+        function durumGoster(msg)
+        {
+            $("#durum").text(msg);
+        }
+        
+        
+        // 2 s sonra imageDb.html
+        $("#gal").click(function ()
+        {
+            console.log("waiting");
+            setTimeout(function ()
+            {
+                console.log("---------");
+                location.href = "imageDb.html";
+            }, 2000);
+        });
+        
+        
+        $("#yukle").click(function ()
+        {
+            imageRef = folder.child(secilenİmage.name);
+            // firebase'e yukleme gorevi
+            gorev = imageRef.put(secilenİmage);
+            gorev.on(firebase.storage.TaskEvent.STATE_CHANGED,
+                    function (snapshot)
+                    {
+                        var durum = snapshot.state;
+                        var toplamBoyut = snapshot.totalBytes;
+                        var gonderilen = snapshot.bytesTransferred;
+                        var yuzde = (gonderilen / toplamBoyut) * 100;
+                        durumGoster(gonderilen + " / " + toplamBoyut + " --> %" + yuzde);
+                        console.log("Durum : " + durum);
+                    },
+                    function (error)
+                    {
+                        console.log("Hata : " + error)
+                    },
+                    function ()
+                    {
+                        var url = gorev.snapshot.downloadURL;
+                        console.log("Adr : " + url);
+
+                        // var yol = secilenİmage.name;
+                        $(".buyukresim img").attr("src", url);
+                        localStorage.setItem("imageUrl", url);
+                    });
+        });
+        
+        
+        //referans ile silme
+        $("#del").click(function ()
+        {
+            console.log("Silinecek: " + imageRef);
+            imageRef.delete();
+            console.log("Silindi !");
+        });
+
+        function getImage(e)
+        {
+            secilenİmage = e.target.files[0];
+            console.log("Secilen image : " + secilenİmage.name);
+        };
+
+        $(document).ready(function ()
+        {
+            document.getElementById('image')
+                    .addEventListener('change', getImage, false);
+        });
+
+      
+        $("#download").click(function ()
+        {
+            console.log("download tıklandı");
+        });
+
+
+
+</script>
+</body>
+</html>
